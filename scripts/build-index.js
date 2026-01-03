@@ -10,13 +10,13 @@ function walk(relDir) {
 
   const items = [];
   for (const e of entries) {
-    if (e.name === ".DS_Store") continue;
+    if (e.name.startsWith(".")) continue;
 
     const relPath = path.posix.join(relDir, e.name);
     const absPath = path.join(ROOT, relPath);
+    const stat = fs.statSync(absPath);
 
     const isDir = e.isDirectory();
-    const stat = fs.statSync(absPath);
 
     items.push({
       name: e.name,
@@ -38,15 +38,19 @@ function walk(relDir) {
 }
 
 const tree = {};
-for (const top of ALLOWED) {
-  const abs = path.join(ROOT, top);
-  if (!fs.existsSync(abs)) fs.mkdirSync(abs, { recursive: true });
-  tree[top] = walk(top);
+for (const root of ALLOWED) {
+  const dir = path.join(ROOT, root);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  tree[root] = walk(root);
 }
 
 fs.writeFileSync(
   path.join(ROOT, "_index.json"),
-  JSON.stringify({ generatedAt: Date.now(), roots: ALLOWED, tree }, null, 2)
+  JSON.stringify(
+    { generatedAt: Date.now(), roots: ALLOWED, tree },
+    null,
+    2
+  )
 );
 
-console.log("✅ Wrote public/_index.json");
+console.log("public/_index.json generated");
