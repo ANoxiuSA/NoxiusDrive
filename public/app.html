@@ -416,7 +416,7 @@
     buildCrumbs(p);
 
     const q = p ? `?path=${encodeURIComponent(p)}` : "";
-    const r = await fetch(`/api/list${q}`);
+    const r = await fetch(`/_index.json?ts=${Date.now()}`);
     const data = await r.json();
 
     if(!r.ok){
