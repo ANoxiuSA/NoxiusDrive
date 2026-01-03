@@ -13,16 +13,10 @@
       --stroke2: rgba(255,255,255,.22);
       --panel: rgba(14,16,24,.52);
       --panel2: rgba(10,12,18,.42);
-      --glass: rgba(255,255,255,.06);
-      --glass2: rgba(255,255,255,.10);
-      --accent: #60a5fa;
-      --accent2: rgba(96,165,250,.24);
       --shadow: 0 24px 90px rgba(0,0,0,.70);
+      --accent: #60a5fa;
       --font: system-ui, -apple-system, "Segoe UI Variable", "Segoe UI", Roboto, Arial, sans-serif;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      --r12: 12px;
-      --r14: 14px;
-      --r16: 16px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -83,6 +77,7 @@
       color: var(--text);
       outline:none;
       font-size: 1rem;
+      font-family: var(--font);
     }
     .inp::placeholder{color: rgba(255,255,255,.45)}
     .lockbtn{
@@ -92,7 +87,7 @@
       color: var(--text);
       padding: 12px 14px;
       cursor:pointer;
-      font-weight: 600;
+      font-weight: 700;
     }
     .lockbtn:hover{background: rgba(255,255,255,.14)}
     .lockmsg{
@@ -162,7 +157,6 @@
     .toolbtn:hover{background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.22)}
     .toolbtn:disabled{opacity:.45; cursor:not-allowed}
     .toolbtn.slim{padding:9px 9px}
-    .spacer{flex:1}
 
     .pathbar{
       flex: 1;
@@ -360,7 +354,7 @@
       background: rgba(255,255,255,.04);
       position:relative;
     }
-    .thumb img, .thumb video{
+    .thumb img{
       max-width:100%;
       max-height:100%;
       border-radius: 14px;
@@ -476,6 +470,62 @@
     }
     .ctx button:hover{background: rgba(255,255,255,0.08)}
     .ctx button:disabled{opacity:.45; cursor:not-allowed}
+
+    /* ===== Terminal Drawer ===== */
+    .terminal{
+      position:absolute;
+      left:12px; right:12px;
+      bottom:46px;
+      height:200px;
+      display:none;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow:hidden;
+      box-shadow: 0 20px 70px rgba(0,0,0,.65);
+    }
+    .termhdr{
+      padding:8px 10px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+      color:rgba(255,255,255,.75);
+      font-family: var(--mono);
+      font-size:.9rem;
+      display:flex; align-items:center; justify-content:space-between;
+      user-select:none;
+    }
+    .termhdr button{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.9);
+      padding: 6px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-family: var(--mono);
+      font-size:.85rem;
+    }
+    .termhdr button:hover{background: rgba(255,255,255,.10)}
+    .termout{
+      padding:8px 10px;
+      height:calc(100% - 70px);
+      overflow:auto;
+      white-space:pre-wrap;
+      color:rgba(255,255,255,.88);
+      font-family: var(--mono);
+      font-size:.9rem;
+    }
+    .termin{
+      width:100%;
+      border:0;
+      outline:none;
+      padding:10px;
+      background:rgba(255,255,255,.06);
+      color:white;
+      font-family:var(--mono);
+      font-size:.95rem;
+    }
+    .termin::placeholder{color: rgba(255,255,255,.45)}
   </style>
 </head>
 
@@ -525,6 +575,7 @@
           <div class="pill" id="gridViewBtn">Grid</div>
         </div>
 
+        <button class="toolbtn slim" id="termBtn" title="Terminal">>_</button>
         <button class="toolbtn" id="openBtn" disabled>📂 Open</button>
         <button class="toolbtn" id="logoutBtn" title="Lock">🔒 Logout</button>
 
@@ -561,6 +612,20 @@
       <div class="statusbar">
         <div id="sbLeft">0 items</div>
         <div id="sbRight">Ready</div>
+      </div>
+
+      <!-- Terminal Drawer -->
+      <div class="terminal" id="terminal">
+        <div class="termhdr">
+          <span>Terminal — NoxiustDrive</span>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button id="termHelpBtn">help</button>
+            <button id="termClearBtn">clear</button>
+            <button id="termCloseBtn">close</button>
+          </div>
+        </div>
+        <div class="termout" id="termOut"></div>
+        <input class="termin" id="termIn" placeholder="Try: ls   |   pwd   |   cd documents/AMC 8   |   cd .." />
       </div>
     </div>
   </div>
@@ -600,6 +665,15 @@
   const lockMsg = document.getElementById("lockMsg");
   const lockHint = document.getElementById("lockHint");
 
+  // Terminal
+  const termBtn = document.getElementById("termBtn");
+  const terminal = document.getElementById("terminal");
+  const termOut = document.getElementById("termOut");
+  const termIn = document.getElementById("termIn");
+  const termCloseBtn = document.getElementById("termCloseBtn");
+  const termClearBtn = document.getElementById("termClearBtn");
+  const termHelpBtn = document.getElementById("termHelpBtn");
+
   // ===== Places =====
   const TOPS = [
     { key:"documents", name:"Documents", icon:"📄" },
@@ -615,12 +689,12 @@
   let selectedIndex = -1;
 
   let VIEW_MODE = localStorage.getItem("ND_VIEW") || "list"; // list|grid
-  let RENDER_BATCH = 120;
+  let RENDER_BATCH = 140;
   let renderCount = 0;
   let isRendering = false;
 
-  // Client-side lock (UI only)
-  const LOCK_KEY = "ND_LOCK_HASH_V1"; // store sha256(pass) here
+  // client-side lock
+  const LOCK_KEY = "ND_LOCK_HASH_V1";
   let lockHash = localStorage.getItem(LOCK_KEY) || null;
 
   // ===== Utils =====
@@ -697,9 +771,30 @@
     return await r.json();
   }
 
+  // Return a folder node (or special root) even if it has 0 children
+  function getFolderNode(pathStr){
+    if(!INDEX) return null;
+    const p = (pathStr || "").replace(/^\/+/, "").replace(/\/+$/, "");
+    if(!p) return { kind:"root", children: TOPS.map(t => ({ kind:"folder", name:t.name, relPath:t.key, children: INDEX.tree?.[t.key] || [] })) };
+
+    const parts = p.split("/").filter(Boolean);
+    const root = parts.shift();
+    if(!INDEX.tree || !(root in INDEX.tree)) return null;
+
+    let cur = { kind:"folder", name: root, relPath: root, children: INDEX.tree[root] || [] };
+    for(const part of parts){
+      const next = (cur.children || []).find(x => x.kind === "folder" && x.name === part);
+      if(!next) return null;
+      cur = next;
+    }
+    return cur;
+  }
+
   function nodeChildrenForPath(p){
     if(!INDEX) return [];
-    if(!p){
+
+    const norm = (p||"").replace(/^\/+/, "").replace(/\/+$/, "");
+    if(!norm){
       return TOPS.map(t => ({
         name: t.name,
         kind: "folder",
@@ -711,17 +806,10 @@
       }));
     }
 
-    const parts = p.split("/").filter(Boolean);
-    const root = parts.shift();
-    let cur = { children: INDEX.tree?.[root] || [] };
+    const node = getFolderNode(norm);
+    if(!node) return [];
 
-    for(const part of parts){
-      const next = (cur.children || []).find(x => x.kind === "folder" && x.name === part);
-      if(!next) return [];
-      cur = next;
-    }
-
-    const ch = (cur.children || []).map(x => ({
+    const ch = (node.children || []).map(x => ({
       ...x,
       url: x.url || (x.kind === "folder" ? `/${x.relPath}/` : `/${x.relPath}`)
     }));
@@ -753,11 +841,14 @@
     }
   }
 
+  // ===== Search (case-insensitive) =====
   function applyFilterToPool(){
-    const q = (searchBox.value || "").trim().toLowerCase();
-    return !q ? items : items.filter(x => (x.name||"").toLowerCase().includes(q));
+    const q = (searchBox.value || "").trim().toLocaleLowerCase();
+    if(!q) return items;
+    return items.filter(x => (x.name || "").toLocaleLowerCase().includes(q));
   }
 
+  // ===== View =====
   function setViewMode(mode){
     VIEW_MODE = mode;
     localStorage.setItem("ND_VIEW", mode);
@@ -913,7 +1004,7 @@
         const ext = extLower(e.name);
         const isImg = e.kind==="file" && isImageExt(ext);
 
-        // Grid thumbs: images only (fast). video/audio still preview in details pane.
+        // thumbnails: images only for speed
         let thumbHTML = `<div class="emoji">${iconFor(e)}</div>`;
         if(isImg) thumbHTML = `<img src="${e.url}" loading="lazy" alt="">`;
 
@@ -965,6 +1056,7 @@
     isRendering = false;
   }
 
+  // ===== Context Menu =====
   function showCtx(x,y){
     ctxMenu.style.display = "block";
     const pad=8;
@@ -978,13 +1070,13 @@
   document.addEventListener("click", (ev)=>{ if(!ev.target.closest(".ctx")) hideCtx(); });
   window.addEventListener("resize", hideCtx);
 
-  // ===== Lazy loading: scroll to load more =====
+  // ===== Lazy loading =====
   rowsEl.addEventListener("scroll", ()=>{
     const nearBottom = rowsEl.scrollTop + rowsEl.clientHeight >= rowsEl.scrollHeight - 240;
     if(nearBottom && renderCount < renderPool.length) renderNextBatch(false);
   });
 
-  // ===== Keyboard navigation =====
+  // ===== Keyboard nav =====
   rowsEl.addEventListener("keydown", (ev)=>{
     if(renderPool.length === 0) return;
     if(ev.key === "ArrowDown"){
@@ -1007,7 +1099,6 @@
   // ===== Buttons =====
   openBtn.onclick = openSelected;
   refreshBtn.onclick = load;
-
   upBtn.onclick = ()=>{
     const p = currentPath();
     if(!p) return;
@@ -1016,29 +1107,12 @@
     setPath(parts.join("/"));
   };
 
-  // Back/Forward use browser history
   backBtn.onclick = ()=> history.back();
   fwdBtn.onclick = ()=> history.forward();
 
-  // ===== Search =====
   searchBox.addEventListener("input", ()=> renderRows(true));
-
-  // ===== View toggle =====
   listViewBtn.onclick = ()=> setViewMode("list");
   gridViewBtn.onclick = ()=> setViewMode("grid");
-
-  function setViewMode(mode){
-    setViewModeInternal(mode);
-  }
-  function setViewModeInternal(mode){
-    VIEW_MODE = mode;
-    localStorage.setItem("ND_VIEW", mode);
-    listViewBtn.classList.toggle("active", mode === "list");
-    gridViewBtn.classList.toggle("active", mode === "grid");
-    listHead.style.display = (mode === "list") ? "grid" : "none";
-    rowsEl.classList.toggle("grid", mode === "grid");
-    renderRows(true);
-  }
 
   // ===== Lock / Logout (client-side) =====
   async function sha256Hex(str){
@@ -1048,12 +1122,10 @@
   }
 
   function showLock(mode){
-    // mode: "setup" | "lock"
     lock.style.display = "flex";
     lockMsg.textContent = "";
     lockPass.value = "";
     lockPass.focus();
-
     if(mode === "setup"){
       lockHint.textContent = "Set a lock password (this device only)";
       unlockBtn.textContent = "Set";
@@ -1069,16 +1141,14 @@
       lockMsg.textContent = "Enter a password.";
       return;
     }
-
     if(!lockHash){
-      // First-time setup
       lockHash = await sha256Hex(pass);
       localStorage.setItem(LOCK_KEY, lockHash);
       lock.style.display = "none";
       subtitle.textContent = "Ready";
+      termPrintOnce("Type 'help' in terminal. Toggle with ` or >_.");
       return;
     }
-
     const h = await sha256Hex(pass);
     if(h === lockHash){
       lock.style.display = "none";
@@ -1092,10 +1162,134 @@
   unlockBtn.onclick = handleUnlock;
   lockPass.addEventListener("keydown", (e)=>{ if(e.key === "Enter") handleUnlock(); });
 
-  logoutBtn.onclick = ()=>{
-    // "Logout" = lock the UI (client-side)
-    showLock("lock");
-  };
+  logoutBtn.onclick = ()=> showLock("lock");
+
+  // ===== Terminal (cd + ls + pwd) =====
+  let didPrintOnce = false;
+  function termPrint(txt){
+    termOut.textContent += txt + "\n";
+    termOut.scrollTop = termOut.scrollHeight;
+  }
+  function termPrintOnce(txt){
+    if(didPrintOnce) return;
+    didPrintOnce = true;
+    termPrint(txt);
+  }
+
+  function showTerminal(){
+    terminal.style.display = "block";
+    termIn.focus();
+  }
+  function hideTerminal(){
+    terminal.style.display = "none";
+  }
+  function toggleTerminal(){
+    terminal.style.display === "none" ? showTerminal() : hideTerminal();
+  }
+
+  function normPath(p){
+    return (p||"").replace(/^\/+/, "").replace(/\/+$/, "");
+  }
+
+  function folderExists(p){
+    // empty string = root exists
+    if(!INDEX) return false;
+    const node = getFolderNode(p);
+    return !!node;
+  }
+
+  function resolveCdTarget(base, target){
+    let t = (target || "").trim();
+    if(!t || t === ".") return base;
+
+    if(t === "/") return "";
+    if(t.startsWith("/")) return normPath(t);
+
+    // handle ../ chains
+    let curParts = (base || "").split("/").filter(Boolean);
+    const tParts = t.split("/").filter(Boolean);
+    for(const part of tParts){
+      if(part === ".") continue;
+      if(part === "..") curParts.pop();
+      else curParts.push(part);
+    }
+    return normPath(curParts.join("/"));
+  }
+
+  function handleCommand(cmd){
+    const raw = (cmd || "").trim();
+    if(!raw) return;
+
+    const parts = raw.split(/\s+/);
+    const c = parts[0].toLowerCase();
+    const arg = parts.slice(1).join(" ");
+    const base = currentPath();
+
+    if(c === "help"){
+      termPrint("Commands:");
+      termPrint("  ls                 list this folder");
+      termPrint("  pwd                show current folder");
+      termPrint("  cd <dir>           change folder (relative or /absolute)");
+      termPrint("  cd ..              go up");
+      termPrint("  clear              clear terminal");
+      termPrint("Tip: toggle terminal with ` or the >_ button.");
+      return;
+    }
+
+    if(c === "clear"){
+      termOut.textContent = "";
+      return;
+    }
+
+    if(c === "pwd"){
+      termPrint("/" + (base || ""));
+      return;
+    }
+
+    if(c === "ls"){
+      const list = nodeChildrenForPath(base).map(x => x.name).join("  ");
+      termPrint(list || "");
+      return;
+    }
+
+    if(c === "cd"){
+      const next = resolveCdTarget(base, arg || "");
+      if(folderExists(next)){
+        setPath(next);
+        termPrint("/" + (next || ""));
+      } else {
+        termPrint(`cd: no such directory: ${arg || ""}`);
+      }
+      return;
+    }
+
+    termPrint(`command not found: ${parts[0]}`);
+  }
+
+  termBtn.onclick = ()=> toggleTerminal();
+  termCloseBtn.onclick = ()=> hideTerminal();
+  termClearBtn.onclick = ()=> handleCommand("clear");
+  termHelpBtn.onclick = ()=> handleCommand("help");
+
+  termIn.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter"){
+      const cmd = termIn.value;
+      termPrint("> " + cmd);
+      termIn.value = "";
+      handleCommand(cmd);
+    } else if(e.key === "Escape"){
+      hideTerminal();
+      rowsEl.focus();
+    }
+  });
+
+  // toggle terminal with `
+  window.addEventListener("keydown", (e)=>{
+    if(e.key === "`" && lock.style.display === "none"){
+      e.preventDefault();
+      toggleTerminal();
+    }
+  });
 
   // ===== Load =====
   window.addEventListener("popstate", load);
@@ -1124,15 +1318,15 @@
     }
   }
 
-  // Init view
-  setViewModeInternal(VIEW_MODE);
+  // ===== Init =====
+  setViewMode(VIEW_MODE);
 
-  // Init lock: if no lockHash set, prompt to set one
   if(!lockHash){
     showLock("setup");
   } else {
-    // Optional: start locked every time
+    // If you want it locked every refresh, uncomment:
     // showLock("lock");
+    lock.style.display = "none";
   }
 
   load();
