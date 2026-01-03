@@ -1,6 +1,6 @@
 # NoxiustDrive
 
-![NoxiustDrive Banner](public/pictures/wallpaper/banner.png)
+![NoxiustDrive Banner](public/pictures/wallpapers/banner.png)
 
 NoxiustDrive is a **fullscreen, Windows File Explorer–style web UI** for navigating server folders on **Vercel (Next.js)**.
 It includes real folder browsing via an API, clickable breadcrumbs, search, details/preview pane, and a frosted-glass (“mica”) look.
