@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>5th Grade Judicial Branch Project — PDF Resource Hub</title>
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#0f1a33; --card:#101f3d; --text:#eaf0ff; --muted:#b9c4e2;
+      --stroke: rgba(255,255,255,.12); --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --accent:#6ea8fe; --accent2:#9b7bff; --good:#49d17d;
+      --font: system-ui, -apple-system, "Segoe UI Variable", "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    [data-theme="light"]{
+      --bg:#f6f7fb; --panel:#ffffff; --card:#ffffff; --text:#0b1220; --muted:#42526b;
+      --stroke: rgba(10,20,40,.12); --shadow: 0 18px 60px rgba(10,20,40,.10);
+      --accent:#2563eb; --accent2:#7c3aed; --good:#16a34a;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background: radial-gradient(1100px 600px at 15% 10%, rgba(110,168,254,.18), transparent 55%),
+                  radial-gradient(900px 500px at 85% 15%, rgba(155,123,255,.16), transparent 55%),
+                  var(--bg);
+    }
+    a{color:inherit}
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      background: linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,0));
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--stroke);
+    }
+    [data-theme="light"] .topbar{ background: rgba(255,255,255,.75); }
+    .wrap{max-width:1200px; margin:0 auto; padding:18px 16px;}
+    .header{
+      display:flex; gap:14px; align-items:flex-start; justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    h1{margin:0; font-size:20px; letter-spacing:.2px}
+    .sub{margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.35}
+    .actions{display:flex; gap:10px; align-items:center}
+    .btn{
+      appearance:none; border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      color:var(--text); padding:10px 12px; border-radius:12px;
+      box-shadow: var(--shadow); cursor:pointer; font-weight:650; font-size:13px;
+    }
+    [data-theme="light"] .btn{ background: #fff; box-shadow: var(--shadow); }
+    .btn:active{transform: translateY(1px)}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--stroke);
+      padding:8px 10px; border-radius:999px; color:var(--muted); font-size:12px;
+      background: rgba(255,255,255,.05);
+    }
+    [data-theme="light"] .pill{ background: rgba(10,20,40,.04); }
+    .grid{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:14px;
+      align-items:stretch;
+    }
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    .panel{
+      border:1px solid var(--stroke);
+      background: color-mix(in srgb, var(--panel) 88%, transparent);
+      border-radius:18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      min-height: 520px;
+    }
+    .panelHead{
+      padding:12px 12px 10px;
+      border-bottom:1px solid var(--stroke);
+      display:flex; gap:10px; align-items:center; justify-content:space-between;
+    }
+    .panelTitle{
+      font-weight:800; letter-spacing:.2px; font-size:13px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .dot{
+      width:10px; height:10px; border-radius:50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: 0 0 0 4px rgba(110,168,254,.18);
+    }
+    .controls{padding:12px; display:grid; gap:10px; border-bottom:1px solid var(--stroke)}
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .input, .select{
+      width:100%;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding:11px 12px; border-radius:14px;
+      outline:none;
+    }
+    [data-theme="light"] .input, [data-theme="light"] .select{ background: rgba(10,20,40,.04); }
+    .cards{padding:10px; display:grid; gap:10px; max-height: 620px; overflow:auto}
+    .card{
+      border:1px solid var(--stroke);
+      border-radius:16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      padding:12px;
+      cursor:pointer;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    [data-theme="light"] .card{ background:#fff; }
+    .card:hover{ transform: translateY(-1px); border-color: color-mix(in srgb, var(--accent) 45%, var(--stroke)); }
+    .card.active{
+      border-color: color-mix(in srgb, var(--accent) 65%, var(--stroke));
+      background: radial-gradient(400px 180px at 20% 0%, rgba(110,168,254,.18), transparent 55%),
+                  linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
+    }
+    .ctop{display:flex; gap:10px; align-items:flex-start; justify-content:space-between}
+    .ctitle{font-weight:850; font-size:14px; margin:0}
+    .meta{margin:6px 0 0; color:var(--muted); font-size:12px; line-height:1.35}
+    .tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px}
+    .tag{
+      font-size:11px; color:var(--muted);
+      border:1px solid var(--stroke);
+      padding:5px 8px; border-radius:999px;
+      background: rgba(255,255,255,.05);
+    }
+    .badge{
+      font-size:11px; font-weight:800;
+      color: #0b1220;
+      padding:6px 8px; border-radius:999px;
+      background: linear-gradient(135deg, var(--good), color-mix(in srgb, var(--good) 65%, #fff));
+      white-space:nowrap;
+    }
+
+    .viewerWrap{height: calc(100% - 0px); display:flex; flex-direction:column}
+    .viewerInfo{padding:12px; border-bottom:1px solid var(--stroke)}
+    .viewerInfo h2{margin:0; font-size:16px}
+    .viewerInfo p{margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.35}
+    .viewerBtns{margin-top:10px; display:flex; gap:10px; flex-wrap:wrap}
+    .linkBtn{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--stroke); border-radius:12px;
+      padding:9px 11px; text-decoration:none;
+      background: rgba(255,255,255,.06);
+      font-weight:750; font-size:13px;
+    }
+    [data-theme="light"] .linkBtn{ background: rgba(10,20,40,.04); }
+    iframe{
+      width:100%; flex:1;
+      border:0;
+      background: color-mix(in srgb, var(--panel) 92%, transparent);
+    }
+    .hint{padding:14px; color:var(--muted); font-size:13px; line-height:1.4}
+    .footer{padding:14px; color:var(--muted); font-size:12px; border-top:1px solid var(--stroke)}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:11px; padding:2px 6px; border-radius:8px;
+      border:1px solid var(--stroke); color:var(--muted);
+      background: rgba(255,255,255,.04);
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap header">
+      <div>
+        <h1>Judicial Branch Project (5th Grade) — PDF Resource Hub</h1>
+        <p class="sub">
+          Click a resource to preview it. Use search + filters to find the best pages fast.
+          Tip: press <span class="kbd">/</span> to jump into search.
+        </p>
+      </div>
+      <div class="actions">
+        <span class="pill" id="countPill">0 resources</span>
+        <button class="btn" id="themeBtn" title="Toggle theme">Toggle theme</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="grid">
+      <!-- LEFT: LIST -->
+      <section class="panel">
+        <div class="panelHead">
+          <div class="panelTitle"><span class="dot"></span>Resources</div>
+          <div class="pill" id="filteredPill">Showing all</div>
+        </div>
+
+        <div class="controls">
+          <input class="input" id="q" placeholder="Search (e.g., Supreme Court, trial, appeals, Constitution)..." />
+          <div class="row">
+            <select class="select" id="type">
+              <option value="all">Type: All</option>
+              <option value="pdf">PDF only</option>
+              <option value="web">Web pages</option>
+            </select>
+            <select class="select" id="grade">
+              <option value="all">Grade fit: All</option>
+              <option value="3-5">Grades 3–5</option>
+              <option value="4-6">Grades 4–6</option>
+              <option value="6-8">Grades 6–8 (still useful)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cards" id="cards"></div>
+
+        <div class="footer">
+          If a PDF preview is blocked by the site, use <b>Open PDF</b> instead (new tab).
+        </div>
+      </section>
+
+      <!-- RIGHT: VIEWER -->
+      <section class="panel viewerWrap">
+        <div class="panelHead">
+          <div class="panelTitle"><span class="dot"></span>Preview</div>
+          <div class="pill">PDF viewer</div>
+        </div>
+
+        <div class="viewerInfo" id="viewerInfo">
+          <h2>Select a resource</h2>
+          <p>Pick something on the left to load it here. Use this to screenshot key pages for your poster/slide.</p>
+          <div class="hint">
+            Quick project structure idea:
+            <ul>
+              <li><b>What the judicial branch does</b> (interprets laws)</li>
+              <li><b>Levels of courts</b> (trial → appeals → Supreme Court)</li>
+              <li><b>Key vocab</b>: judge, jury, case, appeal, judicial review</li>
+            </ul>
+          </div>
+        </div>
+
+        <iframe id="viewer" title="Resource preview" src=""></iframe>
+      </section>
+    </div>
+  </div>
+
+<script>
+  // --- EDIT/ADD RESOURCES HERE ---
+  const RESOURCES = [
+    {
+      title: "What is a Court? (Elementary Lesson Plan) — Washington Courts",
+      url: "https://www.courts.wa.gov/content/lessonPlans/pdf/WhatIsACourt.pdf",
+      type: "pdf",
+      grade: "3-5",
+      source: "courts.wa.gov",
+      desc: "Simple definitions + trial vs. appellate courts. Great for 5th grade.",
+      tags: ["court basics", "trial courts", "appeals"]
+    },
+    {
+      title: "Intermediate: Judicial Branch Lesson Plan — USCIS",
+      url: "https://www.uscis.gov/sites/default/files/document/lesson-plans/Intermediate_Judicial_Branch_lesson_plan.pdf",
+      type: "pdf",
+      grade: "4-6",
+      source: "uscis.gov",
+      desc: "Clear structure of U.S. courts + “equal justice under law.” Use for facts + vocabulary.",
+      tags: ["court system", "constitution", "judicial branch"]
+    },
+    {
+      title: "The Constitution and Our Community (Grades 3–5) — National Archives",
+      url: "https://civics.archives.gov/sites/default/files/2022-08/The%20Constitution%20and%20Our%20Community%20Teacher%20Guide.pdf",
+      type: "pdf",
+      grade: "3-5",
+      source: "archives.gov",
+      desc: "Big picture civics unit: branches of government + Constitution. Great background pages.",
+      tags: ["constitution", "three branches", "civics"]
+    },
+    {
+      title: "Elementary School Lesson: Separation of Powers — ACS",
+      url: "https://www.acslaw.org/wp-content/uploads/2018/08/Elementary-School-Lesson-on-the-Separation-of-Powers.pdf",
+      type: "pdf",
+      grade: "3-5",
+      source: "acslaw.org",
+      desc: "Hands-on activities to show how branches split power (good intro slide/section).",
+      tags: ["separation of powers", "checks & balances", "activity"]
+    },
+    {
+      title: "Division of Power Lesson Plan — Louisiana Secretary of State",
+      url: "https://www.sos.la.gov/ElectionsAndVoting/Archive/DivisionOfPowerLessonPlan.pdf",
+      type: "pdf",
+      grade: "4-6",
+      source: "sos.la.gov",
+      desc: "Simple lesson on branches + how courts interpret laws. Solid teacher language for your write-up.",
+      tags: ["branches", "judicial branch", "interpret laws"]
+    },
+    {
+      title: "Courts & Communities Lesson Plans (Jan 2025) — Colorado Judicial Branch",
+      url: "https://www.coloradojudicial.gov/sites/default/files/2025-03/Lesson%20Plans%20Jan.%202025.pdf",
+      type: "pdf",
+      grade: "6-8",
+      source: "coloradojudicial.gov",
+      desc: "Newer, deeper activities (pick 1–2 simplified visuals for 5th grade).",
+      tags: ["case flow", "court process", "activities"]
+    },
+    {
+      title: "Courts & Communities Resource List — U.S. Court of Appeals (Third Circuit)",
+      url: "https://www.ca3.uscourts.gov/sites/ca3/files/CandCResourceList.pdf",
+      type: "pdf",
+      grade: "all",
+      source: "ca3.uscourts.gov",
+      desc: "A menu of more lesson plans and civics resources if you want extras.",
+      tags: ["resource list", "lesson plans", "civics"]
+    },
+    {
+      title: "Judicial Branch Curriculum Hub — iCivics (web)",
+      url: "https://ed.icivics.org/curriculum/judicial-branch",
+      type: "web",
+      grade: "6-8",
+      source: "icivics.org",
+      desc: "Great hub for games/lessons (even if some materials are for middle school).",
+      tags: ["games", "lessons", "interactive"]
+    },
+    {
+      title: "The Judicial Branch — Ben's Guide (web, kid-friendly)",
+      url: "https://bensguide.gpo.gov/a-judicial",
+      type: "web",
+      grade: "3-5",
+      source: "bensguide.gpo.gov",
+      desc: "One of the clearest kid explanations. Perfect for a summary paragraph.",
+      tags: ["kids", "supreme court", "basics"]
+    }
+  ];
+
+  // --- UI LOGIC ---
+  const $ = (id) => document.getElementById(id);
+  const cardsEl = $("cards");
+  const viewer = $("viewer");
+  const viewerInfo = $("viewerInfo");
+  const q = $("q");
+  const type = $("type");
+  const grade = $("grade");
+  const countPill = $("countPill");
+  const filteredPill = $("filteredPill");
+
+  let activeUrl = "";
+
+  function gradeMatch(resourceGrade, wanted){
+    if (wanted === "all") return true;
+    if (resourceGrade === "all") return true;
+    return resourceGrade === wanted;
+  }
+
+  function render(){
+    const query = q.value.trim().toLowerCase();
+    const wantType = type.value;
+    const wantGrade = grade.value;
+
+    const filtered = RESOURCES.filter(r => {
+      const blob = (r.title + " " + r.desc + " " + r.tags.join(" ")).toLowerCase();
+      const okQ = !query || blob.includes(query);
+      const okType = (wantType === "all") || (r.type === wantType);
+      const okGrade = gradeMatch(r.grade, wantGrade);
+      return okQ && okType && okGrade;
+    });
+
+    cardsEl.innerHTML = filtered.map(r => `
+      <div class="card ${r.url === activeUrl ? "active" : ""}" data-url="${encodeURIComponent(r.url)}">
+        <div class="ctop">
+          <div>
+            <p class="ctitle">${escapeHtml(r.title)}</p>
+            <div class="meta">${escapeHtml(r.desc)}<br><b>Source:</b> ${escapeHtml(r.source)} • <b>Type:</b> ${r.type.toUpperCase()} • <b>Grade fit:</b> ${escapeHtml(r.grade)}</div>
+          </div>
+          ${r.type === "pdf" ? `<span class="badge">PDF</span>` : `<span class="badge">WEB</span>`}
+        </div>
+        <div class="tags">
+          ${r.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("")}
+        </div>
+      </div>
+    `).join("");
+
+    countPill.textContent = `${RESOURCES.length} resources`;
+    filteredPill.textContent = `Showing ${filtered.length}`;
+
+    // Attach click handlers
+    [...cardsEl.querySelectorAll(".card")].forEach(card => {
+      card.addEventListener("click", () => {
+        const url = decodeURIComponent(card.dataset.url);
+        openResource(url);
+      });
+    });
+  }
+
+  function openResource(url){
+    activeUrl = url;
+    const r = RESOURCES.find(x => x.url === url);
+    if (!r) return;
+
+    viewerInfo.innerHTML = `
+      <h2>${escapeHtml(r.title)}</h2>
+      <p>${escapeHtml(r.desc)}<br><b>Source:</b> ${escapeHtml(r.source)} • <b>Grade fit:</b> ${escapeHtml(r.grade)}</p>
+      <div class="viewerBtns">
+        <a class="linkBtn" href="${url}" target="_blank" rel="noopener">Open ${r.type === "pdf" ? "PDF" : "Page"} ↗</a>
+        ${r.type === "pdf" ? `<a class="linkBtn" href="${url}#page=1" target="_blank" rel="noopener">Open (page 1)</a>` : ""}
+      </div>
+    `;
+
+    // Try to preview. Some sites block iframe embedding; if so, user still has Open PDF.
+    viewer.src = url;
+    render();
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, (m) => ({
+      "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    }[m]));
+  }
+
+  // Theme
+  const themeBtn = $("themeBtn");
+  function setTheme(mode){
+    document.documentElement.setAttribute("data-theme", mode);
+    localStorage.setItem("theme", mode);
+  }
+  themeBtn.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme") || "dark";
+    setTheme(cur === "dark" ? "light" : "dark");
+  });
+
+  // Search shortcuts
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "/" && document.activeElement !== q){
+      e.preventDefault();
+      q.focus();
+    }
+  });
+
+  // Inputs
+  q.addEventListener("input", render);
+  type.addEventListener("change", render);
+  grade.addEventListener("change", render);
+
+  // Init
+  setTheme(localStorage.getItem("theme") || "dark");
+  render();
+</script>
+</body>
+</html>
