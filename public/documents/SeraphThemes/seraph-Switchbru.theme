@@ -1,0 +1,10 @@
+{
+  "backgroundImage": "https://switchbru2.vercel.app/assets/wallpaper2.jpeg",
+  "fontFamily": "Ubuntu",
+  "textColor": "#ffffff",
+  "backgroundColor": "#ff0000",
+  "borderColor1": "#ffffff",
+  "borderColor2": "#ffffff",
+  "hoverColor": "#0c4bb0",
+  "textGlow": "#00a1e6"
+}
