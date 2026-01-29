@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ISO Downloader</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+    
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --dark-bg: #0a0a0f;
+      --card-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.7);
+      --accent-color: #6c5ce7;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--dark-bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(240, 147, 251, 0.1) 0%, transparent 50%);
+      animation: backgroundShift 20s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes backgroundShift {
+      0%, 100% { transform: translateX(0) translateY(0); }
+      25% { transform: translateX(-20px) translateY(-20px); }
+      50% { transform: translateX(20px) translateY(-20px); }
+      75% { transform: translateX(-20px) translateY(20px); }
+    }
+
+    /* Navigation */
+    .navbar {
+      background: rgba(10, 10, 15, 0.9) !important;
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 1rem 0;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.5rem;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Main container */
+    .main-container {
+      min-height: calc(100vh - 80px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 0;
+    }
+
+    /* Glass card effect */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 3rem;
+      box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--primary-gradient);
+      opacity: 0.6;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Title styling */
+    .card-title {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      text-align: center;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Distribution images */
+    .distro-option {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .distro-option:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(4px);
+    }
+
+    .distro-option.selected {
+      background: rgba(108, 92, 231, 0.2);
+      border-color: var(--accent-color);
+    }
+
+    .distro-logo {
+      width: 32px;
+      height: 32px;
+      margin-right: 0.75rem;
+      border-radius: 6px;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 4px;
+    }
+
+    .distro-info {
+      flex: 1;
+    }
+
+    .distro-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 1rem;
+    }
+
+    .distro-description {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .custom-select {
+      display: none;
+    }
+
+    .select-dropdown {
+      position: relative;
+    }
+
+    .select-header {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.875rem 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .select-header:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .select-header.active {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+    }
+
+    .select-options {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      margin-top: 0.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .select-options.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: all;
+    }
+
+    .chevron {
+      transition: transform 0.3s ease;
+    }
+
+    .chevron.rotated {
+      transform: rotate(180deg);
+    }
+    .glass-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(102, 126, 234, 0.05) 0%, transparent 70%);
+      pointer-events: none;
+      animation: shimmer 8s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Form focus enhancements */
+    .form-select:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent-color);
+      box-shadow: 
+        0 0 0 3px rgba(108, 92, 231, 0.2),
+        0 4px 12px rgba(108, 92, 231, 0.15);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+    .form-label {
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: var(--text-primary);
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      margin-bottom: 1.5rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .form-select:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+      color: var(--text-primary);
+    }
+
+    .form-select:disabled {
+      background: rgba(255, 255, 255, 0.02);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+    }
+
+    .form-select option {
+      background: var(--dark-bg);
+      color: var(--text-primary);
+    }
+
+    /* Download button */
+    .download-btn {
+      background: var(--primary-gradient);
+      border: none;
+      border-radius: 12px;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.3px;
+      margin-top: 1rem;
+    }
+
+    .download-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .download-btn:hover::before {
+      left: 100%;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
+    }
+
+    .download-btn:active {
+      transform: translateY(0);
+    }
+
+    .download-btn:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .download-btn:disabled::before {
+      display: none;
+    }
+
+    /* Icon styling */
+    .download-btn i {
+      margin-right: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .download-btn:hover i {
+      transform: translateY(-2px);
+    }
+
+    /* Floating elements */
+    .floating-element {
+      position: absolute;
+      background: var(--secondary-gradient);
+      border-radius: 50%;
+      opacity: 0.1;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element:nth-child(1) {
+      width: 60px;
+      height: 60px;
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .floating-element:nth-child(2) {
+      width: 40px;
+      height: 40px;
+      top: 20%;
+      right: 15%;
+      animation-delay: 2s;
+    }
+
+    .floating-element:nth-child(3) {
+      width: 80px;
+      height: 80px;
+      bottom: 15%;
+      left: 5%;
+      animation-delay: 4s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-20px) rotate(120deg); }
+      66% { transform: translateY(10px) rotate(240deg); }
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .glass-card {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+        max-width: calc(100% - 2rem);
+      }
+      
+      .card-title {
+        font-size: 1.75rem;
+      }
+      
+      .floating-element {
+        display: none;
+      }
+
+      .main-container {
+        padding: 1rem 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .glass-card {
+        padding: 1.5rem 1rem;
+        border-radius: 16px;
+      }
+      
+      .card-title {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Success animation */
+    @keyframes downloadPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .download-animation {
+      animation: downloadPulse 0.3s ease-in-out;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating background elements -->
+  <div class="floating-element"></div>
+  <div class="floating-element"></div>
+  <div class="floating-element"></div>
+
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <span class="navbar-brand">
+        <i class="fas fa-compact-disc me-2"></i>
+        ISO Downloader
+      </span>
+    </div>
+  </nav>
+
+  <main class="container-fluid main-container">
+    <div class="glass-card">
+      <h2 class="card-title">
+        <i class="fas fa-download me-2"></i>
+        Select Your Distribution
+      </h2>
+
+      <div class="mb-4">
+        <label for="distro-select" class="form-label">
+          <i class="fab fa-linux me-2"></i>
+          Choose Distribution
+        </label>
+        <div class="select-dropdown">
+          <div class="select-header" id="distro-header">
+            <span id="selected-distro">Choose a distribution…</span>
+            <i class="fas fa-chevron-down chevron"></i>
+          </div>
+          <div class="select-options" id="distro-options">
+            <div class="distro-option" data-value="Ubuntu">
+              <img src="https://assets.ubuntu.com/v1/29985a98-ubuntu-logo32.png" alt="Ubuntu" class="distro-logo">
+              <div class="distro-info">
+                <div class="distro-name">Ubuntu</div>
+                <div class="distro-description">Popular Linux distribution</div>
+              </div>
+            </div>
+            <div class="distro-option" data-value="Windows">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Windows_logo_-_2012.svg/32px-Windows_logo_-_2012.svg.png" alt="Windows" class="distro-logo">
+              <div class="distro-info">
+                <div class="distro-name">Windows</div>
+                <div class="distro-description">Microsoft Windows OS</div>
+              </div>
+            </div>
+            <div class="distro-option" data-value="Fedora">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Fedora_logo.svg/32px-Fedora_logo.svg.png" alt="Fedora" class="distro-logo">
+              <div class="distro-info">
+                <div class="distro-name">Fedora</div>
+                <div class="distro-description">Cutting-edge Linux distribution</div>
+              </div>
+            </div>
+            <div class="distro-option" data-value="CentOS">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Centos-logo-light.svg/32px-Centos-logo-light.svg.png" alt="CentOS" class="distro-logo">
+              <div class="distro-info">
+                <div class="distro-name">CentOS</div>
+                <div class="distro-description">Enterprise Linux distribution</div>
+              </div>
+            </div>
+            <div class="distro-option" data-value="Debian">
+              <img src="https://www.debian.org/logos/openlogo-nd-25.png" alt="Debian" class="distro-logo">
+              <div class="distro-info">
+                <div class="distro-name">Debian</div>
+                <div class="distro-description">Stable Linux distribution</div>
+              </div>
+            </div>
+            <div class="distro-option" data-value="Zorin OS">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/7/70/Zorin_OS.svg" alt="Zorin OS" class="distro-logo">
+              <div class="distro-info">
+                <div class="distro-name">Zorin OS</div>
+                <div class="distro-description">Windows-like Linux experience</div>
+              </div>
+            </div>
+            <div class="distro-option" data-value="Arch Linux">
+              <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMyIDJMMTIgNjJINTJMMzIgMloiIGZpbGw9IiMxNzkzRDEiLz4KPHBhdGggZD0iTTMyIDEyTDIyIDQ4SDQyTDMyIDEyWiIgZmlsbD0iIzU1ODlERCIvPgo8cGF0aCBkPSJNMzIgMjJMMjcgMzhIMzdMMzIgMjJaIiBmaWxsPSIjMjc3OUU3Ii8+Cjwvc3ZnPgo=" alt="Arch Linux" class="distro-logo">
+              <div class="distro-info">
+                <div class="distro-name">Arch Linux</div>
+                <div class="distro-description">Rolling release distribution</div>
+              </div>
+            </div>
+            <div class="distro-option" data-value="Linux Mint">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Linux_Mint_logo_without_wordmark.svg/32px-Linux_Mint_logo_without_wordmark.svg.png" alt="Linux Mint" class="distro-logo">
+              <div class="distro-info">
+                <div class="distro-name">Linux Mint</div>
+                <div class="distro-description">User-friendly Linux distribution</div>
+              </div>
+            </div>
+            <div class="distro-option" data-value="KDE Neon">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Neon-logo.svg/32px-Neon-logo.svg.png" alt="KDE Neon" class="distro-logo">
+              <div class="distro-info">
+                <div class="distro-name">KDE Neon</div>
+                <div class="distro-description">Latest KDE on Ubuntu base</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <select id="distro-select" class="form-select custom-select">
+          <option value="" disabled selected>Choose a distribution…</option>
+          <option>Ubuntu</option>
+          <option>Windows</option>
+          <option>Fedora</option>
+          <option>CentOS</option>
+          <option>Debian</option>
+          <option>Zorin OS</option>
+          <option>Arch Linux</option>
+          <option>Linux Mint</option>
+          <option>KDE Neon</option>
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <label for="variant-select" class="form-label">
+          <i class="fas fa-cog me-2"></i>
+          Version & Edition
+        </label>
+        <select id="variant-select" class="form-select" disabled>
+          <option value="" disabled selected>Select distribution first</option>
+        </select>
+      </div>
+
+      <button id="download-btn" class="btn download-btn w-100" disabled>
+        <i class="fas fa-download"></i>
+        <span class="btn-text">Download ISO</span>
+      </button>
+    </div>
+  </main>
+
+  <script>
+    const isoOptions = {
+      "Ubuntu": [
+        { label: "Ubuntu Desktop 24.04.2 LTS", url: "https://releases.ubuntu.com/24.04/ubuntu-24.04.2-desktop-amd64.iso" },
+        { label: "Ubuntu Server 24.04.2 LTS",  url: "https://releases.ubuntu.com/24.04/ubuntu-24.04.2-live-server-amd64.iso" }
+      ],
+      "Windows": [
+        { label: "Windows 10 ISO (June 2024)", url: "https://archive.org/download/windows-10_20240609/Windows10.iso" },
+        { label: "Windows 11 ISO (24H2)", url: "https://archive.org/download/Win11_24H2_English_x64/Win11_24H2_English_x64.iso" }
+      ],
+      "Fedora": [
+        { label: "Fedora Workstation 42 Live ISO", url: "https://download.fedoraproject.org/pub/fedora/linux/releases/42/Workstation/x86_64/iso/Fedora-Workstation-Live-42-1.1.x86_64.iso" },
+        { label: "Fedora KDE Spin",               url: "https://download.fedoraproject.org/pub/fedora/linux/releases/42/KDE/x86_64/iso/Fedora-KDE-Desktop-Live-42-1.1.x86_64.iso" }
+      ],
+      "CentOS": [
+        { label: "CentOS Stream 9 DVD ISO",        url: "https://mirror.stream.centos.org/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso" }
+      ],
+      "Debian": [
+        { label: "Debian 12.11.0 DVD ISO",          url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-12.11.0-amd64-DVD-1.iso" }
+      ],
+      "Zorin OS": [
+        { label: "Zorin OS 17.3 Core",            url: "https://distro.ibiblio.org/zorinos/17/Zorin-OS-17.3-Core-64-bit.iso" }
+      ],
+      "Arch Linux": [
+        { label: "Arch Linux Latest ISO",           url: "https://mirrors.kernel.org/archlinux/iso/latest/archlinux-x86_64.iso" }
+      ],
+      "Linux Mint": [
+        { label: "Linux Mint 22.1 Cinnamon",        url: "https://mirrors.kernel.org/linuxmint/stable/22.1/linuxmint-22.1-cinnamon-64bit.iso" }
+      ],
+      "KDE Neon": [
+        { label: "KDE neon User Edition",           url: "https://files.kde.org/neon/images/user/current/neon-user-current.iso" }
+      ]
+    };
+
+    const distroSelect  = document.getElementById("distro-select");
+    const variantSelect = document.getElementById("variant-select");
+    const downloadBtn   = document.getElementById("download-btn");
+    const btnText = downloadBtn.querySelector('.btn-text');
+    
+    // Custom dropdown elements
+    const distroHeader = document.getElementById("distro-header");
+    const distroOptions = document.getElementById("distro-options");
+    const selectedDistro = document.getElementById("selected-distro");
+    const chevron = distroHeader.querySelector('.chevron');
+    
+    let currentDistro = '';
+
+    // Custom dropdown functionality
+    distroHeader.addEventListener("click", () => {
+      const isOpen = distroOptions.classList.contains('show');
+      if (isOpen) {
+        distroOptions.classList.remove('show');
+        distroHeader.classList.remove('active');
+        chevron.classList.remove('rotated');
+      } else {
+        distroOptions.classList.add('show');
+        distroHeader.classList.add('active');
+        chevron.classList.add('rotated');
+      }
+    });
+
+    // Handle distro option selection
+    document.querySelectorAll('.distro-option').forEach(option => {
+      option.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        // Remove previous selection
+        document.querySelectorAll('.distro-option').forEach(opt => opt.classList.remove('selected'));
+        
+        // Add selection to clicked option
+        option.classList.add('selected');
+        
+        const value = option.getAttribute('data-value');
+        const name = option.querySelector('.distro-name').textContent;
+        
+        selectedDistro.textContent = name;
+        currentDistro = value;
+        
+        // Close dropdown
+        distroOptions.classList.remove('show');
+        distroHeader.classList.remove('active');
+        chevron.classList.remove('rotated');
+        
+        // Update variant options
+        updateVariantOptions(value);
+      });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!distroHeader.contains(e.target) && !distroOptions.contains(e.target)) {
+        distroOptions.classList.remove('show');
+        distroHeader.classList.remove('active');
+        chevron.classList.remove('rotated');
+      }
+    });
+
+    function updateVariantOptions(distroValue) {
+      const choices = isoOptions[distroValue] || [];
+      
+      // Fade out effect
+      variantSelect.style.opacity = '0.5';
+      
+      setTimeout(() => {
+        variantSelect.innerHTML = choices.length
+          ? choices.map(v => `<option value="${v.url}">${v.label}</option>`).join("")
+          : `<option disabled selected>No options available</option>`;
+        
+        variantSelect.disabled = choices.length === 0;
+        
+        if (choices.length > 0) {
+          variantSelect.selectedIndex = 0;
+          downloadBtn.disabled = false;
+        } else {
+          downloadBtn.disabled = true;
+        }
+        
+        // Fade in effect
+        variantSelect.style.opacity = '1';
+      }, 150);
+    }
+
+    // Add smooth transitions to select changes (fallback for regular select)
+    distroSelect.addEventListener("change", () => {
+      updateVariantOptions(distroSelect.value);
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      const url = variantSelect.value;
+      if (url) {
+        // Add loading state
+        downloadBtn.innerHTML = '<div class="spinner"></div><span>Preparing Download...</span>';
+        downloadBtn.disabled = true;
+        
+        // Add download animation
+        downloadBtn.classList.add('download-animation');
+        
+        setTimeout(() => {
+          window.location.href = url;
+          
+          // Reset button after a delay
+          setTimeout(() => {
+            downloadBtn.innerHTML = '<i class="fas fa-download"></i><span class="btn-text">Download ISO</span>';
+            downloadBtn.disabled = false;
+            downloadBtn.classList.remove('download-animation');
+          }, 2000);
+        }, 500);
+      }
+    });
+
+    // Add hover effects to form elements
+    const formElements = document.querySelectorAll('.form-select');
+    formElements.forEach(element => {
+      element.addEventListener('focus', function() {
+        this.style.transform = 'translateY(-2px)';
+      });
+      
+      element.addEventListener('blur', function() {
+        this.style.transform = 'translateY(0)';
+      });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
