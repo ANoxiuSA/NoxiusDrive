@@ -621,7 +621,7 @@
           <div class="sidebar-item active" data-category="all">
             <i class="fas fa-globe sidebar-icon"></i>
             <span>All Distributions</span>
-            <span class="sidebar-badge">14</span>
+            <span class="sidebar-badge">17</span>
           </div>
           <div class="sidebar-item" data-category="linux">
             <i class="fab fa-linux sidebar-icon"></i>
@@ -637,6 +637,11 @@
             <i class="fas fa-server sidebar-icon"></i>
             <span>Server</span>
             <span class="sidebar-badge">5</span>
+          </div>
+          <div class="sidebar-item" data-category="tools">
+            <i class="fas fa-tools sidebar-icon"></i>
+            <span>Tools</span>
+            <span class="sidebar-badge">3</span>
           </div>
         </div>
 
@@ -891,6 +896,47 @@
           { label: "GNOME", url: "https://download.manjaro.org/gnome/24.2.1/manjaro-gnome-24.2.1-minimal-241221-linux612.iso" },
           { label: "KDE", url: "https://download.manjaro.org/kde/24.2.1/manjaro-kde-24.2.1-minimal-241221-linux612.iso" }
         ]
+      },
+      "balenaEtcher": {
+        icon: "fas fa-usb",
+        color: "iso",
+        category: ["tools"],
+        type: "Utility",
+        size: "150 MB",
+        release: "2025",
+        description: "Flash OS images to USB drives and SD cards safely and easily",
+        versions: [
+          { label: "Windows Installer", url: "https://github.com/balena-io/etcher/releases/latest/download/balenaEtcher-Setup.exe" },
+          { label: "macOS (DMG)", url: "https://github.com/balena-io/etcher/releases/latest/download/balenaEtcher.dmg" },
+          { label: "Linux AppImage", url: "https://github.com/balena-io/etcher/releases/latest/download/balenaEtcher.AppImage" }
+        ]
+      },
+      "Rufus": {
+        icon: "fas fa-hdd",
+        color: "iso",
+        category: ["tools"],
+        type: "Utility",
+        size: "1.4 MB",
+        release: "2025",
+        description: "Create bootable USB drives from ISO files (Windows only)",
+        versions: [
+          { label: "Rufus Portable", url: "https://github.com/pbatard/rufus/releases/download/v4.6/rufus-4.6p.exe" },
+          { label: "Rufus Installer", url: "https://github.com/pbatard/rufus/releases/download/v4.6/rufus-4.6.exe" }
+        ]
+      },
+      "netboot.xyz": {
+        icon: "fas fa-network-wired",
+        color: "iso",
+        category: ["tools", "latest"],
+        type: "Boot Utility",
+        size: "90 MB",
+        release: "2025",
+        description: "Network boot multiple operating systems from a single USB/ISO",
+        versions: [
+          { label: "netboot.iso", url: "https://boot.netboot.xyz/ipxe/netboot.xyz.iso" },
+          { label: "netboot.usb", url: "https://boot.netboot.xyz/ipxe/netboot.xyz.img" },
+          { label: "netboot-undionly.kpxe", url: "https://boot.netboot.xyz/ipxe/netboot.xyz-undionly.kpxe" }
+        ]
       }
     };
 
@@ -1005,7 +1051,7 @@
 
         <button class="download-button" id="download-btn">
           <i class="fas fa-download"></i>
-          Download ISO
+          ${name.includes('Etcher') || name.includes('Rufus') || name.includes('netboot') ? 'Download Tool' : 'Download ISO'}
         </button>
       `;
 
