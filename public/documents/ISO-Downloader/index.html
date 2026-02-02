@@ -4,23 +4,29 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ISO Downloader</title>
-  <!-- Bootstrap CSS -->
+  <title>ISO Manager</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     :root {
-      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      --dark-bg: #0a0a0f;
-      --card-bg: rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.18);
-      --text-primary: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.7);
-      --accent-color: #6c5ce7;
+      --bg-primary: #1e1e2e;
+      --bg-secondary: #181825;
+      --bg-tertiary: #11111b;
+      --sidebar-bg: #181825;
+      --content-bg: #1e1e2e;
+      --hover-bg: #313244;
+      --selected-bg: #45475a;
+      --border: #313244;
+      --text-primary: #cdd6f4;
+      --text-secondary: #a6adc8;
+      --text-muted: #6c7086;
+      --accent-blue: #89b4fa;
+      --accent-purple: #cba6f7;
+      --accent-green: #a6e3a1;
+      --accent-red: #f38ba8;
+      --accent-yellow: #f9e2af;
     }
 
     * {
@@ -30,442 +36,521 @@
     }
 
     body {
-      font-family: 'Space Grotesk', sans-serif;
-      background: var(--dark-bg);
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
       color: var(--text-primary);
-      min-height: 100vh;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* Animated background */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, rgba(240, 147, 251, 0.1) 0%, transparent 50%);
-      animation: backgroundShift 20s ease-in-out infinite;
-      z-index: -1;
-    }
-
-    @keyframes backgroundShift {
-      0%, 100% { transform: translateX(0) translateY(0); }
-      25% { transform: translateX(-20px) translateY(-20px); }
-      50% { transform: translateX(20px) translateY(-20px); }
-      75% { transform: translateX(-20px) translateY(20px); }
-    }
-
-    /* Navigation */
-    .navbar {
-      background: rgba(10, 10, 15, 0.9) !important;
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--glass-border);
-      padding: 1rem 0;
-    }
-
-    .navbar-brand {
-      font-weight: 700;
-      font-size: 1.5rem;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* Main container */
-    .main-container {
-      min-height: calc(100vh - 80px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem 0;
-    }
-
-    /* Glass card effect */
-    .glass-card {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: 24px;
-      padding: 3rem;
-      box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.3),
-        0 0 0 1px rgba(255, 255, 255, 0.05);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
       overflow: hidden;
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
+      height: 100vh;
     }
 
-    .glass-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: var(--primary-gradient);
-      opacity: 0.6;
-    }
-
-    .glass-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.4),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
-    }
-
-    /* Title styling */
-    .card-title {
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 2rem;
-      text-align: center;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* Distribution images */
-    .distro-option {
+    /* File Manager Layout */
+    .file-manager {
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Title Bar */
+    .title-bar {
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
       padding: 0.75rem 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      margin-bottom: 0.5rem;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .distro-option:hover {
-      background: rgba(255, 255, 255, 0.08);
-      transform: translateX(4px);
-    }
-
-    .distro-option.selected {
-      background: rgba(108, 92, 231, 0.2);
-      border-color: var(--accent-color);
-    }
-
-    .distro-logo {
-      width: 32px;
-      height: 32px;
-      margin-right: 0.75rem;
-      border-radius: 6px;
-      object-fit: contain;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 4px;
-    }
-
-    .distro-info {
-      flex: 1;
-    }
-
-    .distro-name {
-      font-weight: 600;
-      color: var(--text-primary);
-      font-size: 1rem;
-    }
-
-    .distro-description {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
-
-    .custom-select {
-      display: none;
-    }
-
-    .select-dropdown {
-      position: relative;
-    }
-
-    .select-header {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 0.875rem 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    .select-header:hover {
-      background: rgba(255, 255, 255, 0.08);
+    .title-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
 
-    .select-header.active {
-      border-color: var(--accent-color);
-      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+    .window-controls {
+      display: flex;
+      gap: 0.5rem;
     }
 
-    .select-options {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: rgba(10, 10, 15, 0.95);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      margin-top: 0.5rem;
-      max-height: 300px;
-      overflow-y: auto;
-      z-index: 1000;
-      opacity: 0;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-      pointer-events: none;
+    .window-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      cursor: pointer;
     }
 
-    .select-options.show {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: all;
+    .window-btn.close { background: #f38ba8; }
+    .window-btn.minimize { background: #f9e2af; }
+    .window-btn.maximize { background: #a6e3a1; }
+
+    .app-icon {
+      font-size: 1.25rem;
+      color: var(--accent-blue);
     }
 
-    .chevron {
-      transition: transform 0.3s ease;
-    }
-
-    .chevron.rotated {
-      transform: rotate(180deg);
-    }
-    .glass-card::after {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(102, 126, 234, 0.05) 0%, transparent 70%);
-      pointer-events: none;
-      animation: shimmer 8s linear infinite;
-    }
-
-    @keyframes shimmer {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Form focus enhancements */
-    .form-select:focus {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: var(--accent-color);
-      box-shadow: 
-        0 0 0 3px rgba(108, 92, 231, 0.2),
-        0 4px 12px rgba(108, 92, 231, 0.15);
+    .app-title {
+      font-weight: 600;
+      font-size: 0.95rem;
       color: var(--text-primary);
-      transform: translateY(-1px);
     }
-    .form-label {
+
+    /* Toolbar */
+    .toolbar {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .toolbar-section {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toolbar-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toolbar-btn:hover {
+      background: var(--hover-bg);
+      color: var(--text-primary);
+    }
+
+    .toolbar-btn.active {
+      background: var(--accent-blue);
+      color: var(--bg-primary);
+      border-color: var(--accent-blue);
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      margin: 0 0.5rem;
+    }
+
+    .search-box {
+      flex: 1;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.5rem 0.75rem 0.5rem 2.5rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    /* Main Content */
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      padding: 1rem 0.5rem;
+      overflow-y: auto;
+    }
+
+    .sidebar-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .sidebar-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.5rem 0.75rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .sidebar-item:hover {
+      background: var(--hover-bg);
+      color: var(--text-primary);
+    }
+
+    .sidebar-item.active {
+      background: var(--selected-bg);
+      color: var(--text-primary);
+    }
+
+    .sidebar-icon {
+      width: 20px;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    .sidebar-badge {
+      margin-left: auto;
+      background: var(--accent-blue);
+      color: var(--bg-primary);
+      font-size: 0.7rem;
+      padding: 0.125rem 0.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      background: var(--content-bg);
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+
+    .breadcrumb-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .breadcrumb-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .breadcrumb-item:hover {
+      color: var(--accent-blue);
+    }
+
+    .breadcrumb-item.current {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* File Grid */
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .file-item {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .file-item:hover {
+      background: var(--hover-bg);
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .file-item.selected {
+      background: var(--selected-bg);
+      border-color: var(--accent-blue);
+    }
+
+    .file-icon {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+      color: var(--accent-blue);
+    }
+
+    .file-icon.folder { color: var(--accent-yellow); }
+    .file-icon.windows { color: var(--accent-blue); }
+    .file-icon.linux { color: var(--accent-green); }
+    .file-icon.iso { color: var(--accent-purple); }
+
+    .file-name {
+      font-size: 0.875rem;
       font-weight: 500;
       color: var(--text-primary);
-      margin-bottom: 0.5rem;
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+      word-wrap: break-word;
     }
 
-    .form-select {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      color: var(--text-primary);
-      padding: 0.875rem 1rem;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      margin-bottom: 1.5rem;
-      backdrop-filter: blur(10px);
+    .file-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
     }
 
-    .form-select:focus {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: var(--accent-color);
-      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
-      color: var(--text-primary);
-    }
-
-    .form-select:disabled {
-      background: rgba(255, 255, 255, 0.02);
-      color: var(--text-secondary);
-      cursor: not-allowed;
-    }
-
-    .form-select option {
-      background: var(--dark-bg);
-      color: var(--text-primary);
-    }
-
-    /* Download button */
-    .download-btn {
-      background: var(--primary-gradient);
-      border: none;
-      border-radius: 12px;
-      padding: 1rem 2rem;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-      letter-spacing: 0.3px;
-      margin-top: 1rem;
-    }
-
-    .download-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
-    }
-
-    .download-btn:hover::before {
-      left: 100%;
-    }
-
-    .download-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 24px rgba(102, 126, 234, 0.4);
-    }
-
-    .download-btn:active {
-      transform: translateY(0);
-    }
-
-    .download-btn:disabled {
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text-secondary);
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .download-btn:disabled::before {
+    /* List View */
+    .file-list {
       display: none;
     }
 
-    /* Icon styling */
-    .download-btn i {
-      margin-right: 0.5rem;
-      transition: transform 0.3s ease;
+    .file-list.active {
+      display: block;
     }
 
-    .download-btn:hover i {
-      transform: translateY(-2px);
+    .list-header {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    /* Floating elements */
-    .floating-element {
-      position: absolute;
-      background: var(--secondary-gradient);
-      border-radius: 50%;
-      opacity: 0.1;
-      animation: float 6s ease-in-out infinite;
+    .list-item {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 1rem;
+      padding: 0.875rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      align-items: center;
     }
 
-    .floating-element:nth-child(1) {
-      width: 60px;
-      height: 60px;
-      top: 10%;
-      left: 10%;
-      animation-delay: 0s;
+    .list-item:hover {
+      background: var(--hover-bg);
+      border-color: var(--accent-blue);
     }
 
-    .floating-element:nth-child(2) {
-      width: 40px;
-      height: 40px;
-      top: 20%;
-      right: 15%;
-      animation-delay: 2s;
+    .list-item.selected {
+      background: var(--selected-bg);
+      border-color: var(--accent-blue);
     }
 
-    .floating-element:nth-child(3) {
-      width: 80px;
-      height: 80px;
-      bottom: 15%;
-      left: 5%;
-      animation-delay: 4s;
+    .list-item-name {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--text-primary);
+      font-weight: 500;
     }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      33% { transform: translateY(-20px) rotate(120deg); }
-      66% { transform: translateY(10px) rotate(240deg); }
+    .list-item-icon {
+      font-size: 1.5rem;
     }
 
-    /* Responsive design */
+    .list-item-info {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    /* Details Panel */
+    .details-panel {
+      width: 280px;
+      background: var(--sidebar-bg);
+      border-left: 1px solid var(--border);
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .details-panel.hidden {
+      display: none;
+    }
+
+    .details-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .details-icon {
+      font-size: 4rem;
+      color: var(--accent-blue);
+      margin-bottom: 1rem;
+    }
+
+    .details-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .details-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .details-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .details-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .details-value {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .download-button {
+      background: var(--accent-blue);
+      color: var(--bg-primary);
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .download-button:hover {
+      background: var(--accent-purple);
+      transform: translateY(-1px);
+    }
+
+    .download-button:disabled {
+      background: var(--border);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      background: var(--bg-tertiary);
+      border-top: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .status-left, .status-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 200px;
+      }
+      
+      .details-panel {
+        width: 260px;
+      }
+    }
+
     @media (max-width: 768px) {
-      .glass-card {
-        padding: 2rem 1.5rem;
-        margin: 1rem;
-        max-width: calc(100% - 2rem);
+      .sidebar {
+        position: absolute;
+        left: -220px;
+        height: calc(100vh - 110px);
+        z-index: 100;
+        transition: left 0.3s;
       }
       
-      .card-title {
-        font-size: 1.75rem;
+      .sidebar.show {
+        left: 0;
       }
       
-      .floating-element {
+      .details-panel {
         display: none;
       }
-
-      .main-container {
-        padding: 1rem 0;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .glass-card {
-        padding: 1.5rem 1rem;
-        border-radius: 16px;
-      }
       
-      .card-title {
-        font-size: 1.5rem;
+      .file-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       }
     }
 
-    /* Success animation */
-    @keyframes downloadPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
     }
 
-    .download-animation {
-      animation: downloadPulse 0.3s ease-in-out;
+    ::-webkit-scrollbar-track {
+      background: var(--bg-tertiary);
     }
 
-    /* Loading spinner */
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--hover-bg);
+    }
+
     .spinner {
-      display: inline-block;
       width: 16px;
       height: 16px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
+      border: 2px solid var(--bg-primary);
+      border-top-color: transparent;
       border-radius: 50%;
-      border-top-color: white;
-      animation: spin 1s ease-in-out infinite;
-      margin-right: 0.5rem;
+      animation: spin 0.8s linear infinite;
     }
 
     @keyframes spin {
@@ -474,297 +559,518 @@
   </style>
 </head>
 <body>
-  <!-- Floating background elements -->
-  <div class="floating-element"></div>
-  <div class="floating-element"></div>
-  <div class="floating-element"></div>
-
-  <nav class="navbar navbar-expand-lg">
-    <div class="container">
-      <span class="navbar-brand">
-        <i class="fas fa-compact-disc me-2"></i>
-        ISO Downloader
-      </span>
+  <div class="file-manager">
+    <!-- Title Bar -->
+    <div class="title-bar">
+      <div class="title-left">
+        <div class="window-controls">
+          <div class="window-btn close"></div>
+          <div class="window-btn minimize"></div>
+          <div class="window-btn maximize"></div>
+        </div>
+        <i class="fas fa-folder-open app-icon"></i>
+        <span class="app-title">ISO Manager</span>
+      </div>
     </div>
-  </nav>
 
-  <main class="container-fluid main-container">
-    <div class="glass-card">
-      <h2 class="card-title">
-        <i class="fas fa-download me-2"></i>
-        Select Your Distribution
-      </h2>
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-section">
+        <button class="toolbar-btn" id="back-btn" disabled>
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <button class="toolbar-btn" id="forward-btn" disabled>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <button class="toolbar-btn" id="up-btn">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+      </div>
 
-      <div class="mb-4">
-        <label for="distro-select" class="form-label">
-          <i class="fab fa-linux me-2"></i>
-          Choose Distribution
-        </label>
-        <div class="select-dropdown">
-          <div class="select-header" id="distro-header">
-            <span id="selected-distro">Choose a distribution…</span>
-            <i class="fas fa-chevron-down chevron"></i>
+      <div class="toolbar-divider"></div>
+
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" class="search-input" placeholder="Search distributions..." id="search-input">
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <div class="toolbar-section">
+        <button class="toolbar-btn active" id="grid-view-btn">
+          <i class="fas fa-th"></i>
+        </button>
+        <button class="toolbar-btn" id="list-view-btn">
+          <i class="fas fa-list"></i>
+        </button>
+      </div>
+
+      <div class="toolbar-section">
+        <button class="toolbar-btn" id="details-toggle">
+          <i class="fas fa-info-circle"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-title">Categories</div>
+          <div class="sidebar-item active" data-category="all">
+            <i class="fas fa-globe sidebar-icon"></i>
+            <span>All Distributions</span>
+            <span class="sidebar-badge">14</span>
           </div>
-          <div class="select-options" id="distro-options">
-            <div class="distro-option" data-value="Ubuntu">
-              <img src="https://assets.ubuntu.com/v1/29985a98-ubuntu-logo32.png" alt="Ubuntu" class="distro-logo">
-              <div class="distro-info">
-                <div class="distro-name">Ubuntu</div>
-                <div class="distro-description">Popular Linux distribution</div>
-              </div>
-            </div>
-            <div class="distro-option" data-value="Windows">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Windows_logo_-_2012.svg/32px-Windows_logo_-_2012.svg.png" alt="Windows" class="distro-logo">
-              <div class="distro-info">
-                <div class="distro-name">Windows</div>
-                <div class="distro-description">Microsoft Windows OS</div>
-              </div>
-            </div>
-            <div class="distro-option" data-value="Fedora">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Fedora_logo.svg/32px-Fedora_logo.svg.png" alt="Fedora" class="distro-logo">
-              <div class="distro-info">
-                <div class="distro-name">Fedora</div>
-                <div class="distro-description">Cutting-edge Linux distribution</div>
-              </div>
-            </div>
-            <div class="distro-option" data-value="CentOS">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Centos-logo-light.svg/32px-Centos-logo-light.svg.png" alt="CentOS" class="distro-logo">
-              <div class="distro-info">
-                <div class="distro-name">CentOS</div>
-                <div class="distro-description">Enterprise Linux distribution</div>
-              </div>
-            </div>
-            <div class="distro-option" data-value="Debian">
-              <img src="https://www.debian.org/logos/openlogo-nd-25.png" alt="Debian" class="distro-logo">
-              <div class="distro-info">
-                <div class="distro-name">Debian</div>
-                <div class="distro-description">Stable Linux distribution</div>
-              </div>
-            </div>
-            <div class="distro-option" data-value="Zorin OS">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/7/70/Zorin_OS.svg" alt="Zorin OS" class="distro-logo">
-              <div class="distro-info">
-                <div class="distro-name">Zorin OS</div>
-                <div class="distro-description">Windows-like Linux experience</div>
-              </div>
-            </div>
-            <div class="distro-option" data-value="Arch Linux">
-              <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTMyIDJMMTIgNjJINTJMMzIgMloiIGZpbGw9IiMxNzkzRDEiLz4KPHBhdGggZD0iTTMyIDEyTDIyIDQ4SDQyTDMyIDEyWiIgZmlsbD0iIzU1ODlERCIvPgo8cGF0aCBkPSJNMzIgMjJMMjcgMzhIMzdMMzIgMjJaIiBmaWxsPSIjMjc3OUU3Ii8+Cjwvc3ZnPgo=" alt="Arch Linux" class="distro-logo">
-              <div class="distro-info">
-                <div class="distro-name">Arch Linux</div>
-                <div class="distro-description">Rolling release distribution</div>
-              </div>
-            </div>
-            <div class="distro-option" data-value="Linux Mint">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Linux_Mint_logo_without_wordmark.svg/32px-Linux_Mint_logo_without_wordmark.svg.png" alt="Linux Mint" class="distro-logo">
-              <div class="distro-info">
-                <div class="distro-name">Linux Mint</div>
-                <div class="distro-description">User-friendly Linux distribution</div>
-              </div>
-            </div>
-            <div class="distro-option" data-value="KDE Neon">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Neon-logo.svg/32px-Neon-logo.svg.png" alt="KDE Neon" class="distro-logo">
-              <div class="distro-info">
-                <div class="distro-name">KDE Neon</div>
-                <div class="distro-description">Latest KDE on Ubuntu base</div>
-              </div>
-            </div>
+          <div class="sidebar-item" data-category="linux">
+            <i class="fab fa-linux sidebar-icon"></i>
+            <span>Linux</span>
+            <span class="sidebar-badge">11</span>
+          </div>
+          <div class="sidebar-item" data-category="windows">
+            <i class="fab fa-windows sidebar-icon"></i>
+            <span>Windows</span>
+            <span class="sidebar-badge">2</span>
+          </div>
+          <div class="sidebar-item" data-category="server">
+            <i class="fas fa-server sidebar-icon"></i>
+            <span>Server</span>
+            <span class="sidebar-badge">5</span>
           </div>
         </div>
-        <select id="distro-select" class="form-select custom-select">
-          <option value="" disabled selected>Choose a distribution…</option>
-          <option>Ubuntu</option>
-          <option>Windows</option>
-          <option>Fedora</option>
-          <option>CentOS</option>
-          <option>Debian</option>
-          <option>Zorin OS</option>
-          <option>Arch Linux</option>
-          <option>Linux Mint</option>
-          <option>KDE Neon</option>
-        </select>
+
+        <div class="sidebar-section">
+          <div class="sidebar-title">Quick Access</div>
+          <div class="sidebar-item" data-category="popular">
+            <i class="fas fa-fire sidebar-icon"></i>
+            <span>Popular</span>
+          </div>
+          <div class="sidebar-item" data-category="latest">
+            <i class="fas fa-star sidebar-icon"></i>
+            <span>Latest Releases</span>
+          </div>
+          <div class="sidebar-item" data-category="lts">
+            <i class="fas fa-shield-alt sidebar-icon"></i>
+            <span>LTS Versions</span>
+          </div>
+        </div>
       </div>
 
-      <div class="mb-4">
-        <label for="variant-select" class="form-label">
-          <i class="fas fa-cog me-2"></i>
-          Version & Edition
-        </label>
-        <select id="variant-select" class="form-select" disabled>
-          <option value="" disabled selected>Select distribution first</option>
-        </select>
+      <!-- Content Area -->
+      <div class="content-area">
+        <div class="breadcrumb-nav">
+          <div class="breadcrumb-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+          </div>
+          <i class="fas fa-chevron-right" style="font-size: 0.7rem;"></i>
+          <div class="breadcrumb-item current">
+            <span id="current-location">All Distributions</span>
+          </div>
+        </div>
+
+        <!-- Grid View -->
+        <div class="file-grid" id="file-grid">
+          <!-- Items will be populated here -->
+        </div>
+
+        <!-- List View -->
+        <div class="file-list" id="file-list">
+          <div class="list-header">
+            <div>Name</div>
+            <div>Type</div>
+            <div>Size</div>
+            <div>Release</div>
+          </div>
+          <!-- Items will be populated here -->
+        </div>
       </div>
 
-      <button id="download-btn" class="btn download-btn w-100" disabled>
-        <i class="fas fa-download"></i>
-        <span class="btn-text">Download ISO</span>
-      </button>
+      <!-- Details Panel -->
+      <div class="details-panel" id="details-panel">
+        <div id="details-content">
+          <div style="text-align: center; padding: 2rem 0;">
+            <i class="fas fa-mouse-pointer" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">Select an item to view details</p>
+          </div>
+        </div>
+      </div>
     </div>
-  </main>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-left">
+        <span id="item-count">14 items</span>
+        <span>•</span>
+        <span id="selected-count">None selected</span>
+      </div>
+      <div class="status-right">
+        <span>Ready</span>
+      </div>
+    </div>
+  </div>
 
   <script>
-    const isoOptions = {
-      "Ubuntu": [
-        { label: "Ubuntu Desktop 24.04.2 LTS", url: "https://releases.ubuntu.com/24.04/ubuntu-24.04.2-desktop-amd64.iso" },
-        { label: "Ubuntu Server 24.04.2 LTS",  url: "https://releases.ubuntu.com/24.04/ubuntu-24.04.2-live-server-amd64.iso" }
-      ],
-      "Windows": [
-        { label: "Windows 10 ISO (June 2024)", url: "https://archive.org/download/windows-10_20240609/Windows10.iso" },
-        { label: "Windows 11 ISO (24H2)", url: "https://archive.org/download/Win11_24H2_English_x64/Win11_24H2_English_x64.iso" }
-      ],
-      "Fedora": [
-        { label: "Fedora Workstation 42 Live ISO", url: "https://download.fedoraproject.org/pub/fedora/linux/releases/42/Workstation/x86_64/iso/Fedora-Workstation-Live-42-1.1.x86_64.iso" },
-        { label: "Fedora KDE Spin",               url: "https://download.fedoraproject.org/pub/fedora/linux/releases/42/KDE/x86_64/iso/Fedora-KDE-Desktop-Live-42-1.1.x86_64.iso" }
-      ],
-      "CentOS": [
-        { label: "CentOS Stream 9 DVD ISO",        url: "https://mirror.stream.centos.org/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso" }
-      ],
-      "Debian": [
-        { label: "Debian 12.11.0 DVD ISO",          url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-12.11.0-amd64-DVD-1.iso" }
-      ],
-      "Zorin OS": [
-        { label: "Zorin OS 17.3 Core",            url: "https://distro.ibiblio.org/zorinos/17/Zorin-OS-17.3-Core-64-bit.iso" }
-      ],
-      "Arch Linux": [
-        { label: "Arch Linux Latest ISO",           url: "https://mirrors.kernel.org/archlinux/iso/latest/archlinux-x86_64.iso" }
-      ],
-      "Linux Mint": [
-        { label: "Linux Mint 22.1 Cinnamon",        url: "https://mirrors.kernel.org/linuxmint/stable/22.1/linuxmint-22.1-cinnamon-64bit.iso" }
-      ],
-      "KDE Neon": [
-        { label: "KDE neon User Edition",           url: "https://files.kde.org/neon/images/user/current/neon-user-current.iso" }
-      ]
+    const distributions = {
+      "Ubuntu 25.10": {
+        icon: "fab fa-ubuntu",
+        color: "linux",
+        category: ["linux", "popular", "latest"],
+        type: "Desktop",
+        size: "6.2 GB",
+        release: "Oct 2025",
+        description: "Latest Ubuntu release with updated GNOME and kernel 6.13",
+        versions: [
+          { label: "Desktop", url: "https://releases.ubuntu.com/25.10/ubuntu-25.10-desktop-amd64.iso" },
+          { label: "Server", url: "https://releases.ubuntu.com/25.10/ubuntu-25.10-live-server-amd64.iso" }
+        ]
+      },
+      "Ubuntu 24.10": {
+        icon: "fab fa-ubuntu",
+        color: "linux",
+        category: ["linux", "popular"],
+        type: "Desktop",
+        size: "6.0 GB",
+        release: "Oct 2024",
+        description: "Ubuntu with GNOME 47 and improved performance",
+        versions: [
+          { label: "Desktop", url: "https://releases.ubuntu.com/24.10/ubuntu-24.10-desktop-amd64.iso" },
+          { label: "Server", url: "https://releases.ubuntu.com/24.10/ubuntu-24.10-live-server-amd64.iso" }
+        ]
+      },
+      "Ubuntu 24.04.1 LTS": {
+        icon: "fab fa-ubuntu",
+        color: "linux",
+        category: ["linux", "popular", "lts", "server"],
+        type: "LTS",
+        size: "5.8 GB",
+        release: "Apr 2024",
+        description: "Long-term support release with 5 years of updates",
+        versions: [
+          { label: "Desktop", url: "https://releases.ubuntu.com/24.04/ubuntu-24.04.1-desktop-amd64.iso" },
+          { label: "Server", url: "https://releases.ubuntu.com/24.04/ubuntu-24.04.1-live-server-amd64.iso" }
+        ]
+      },
+      "Windows 11 24H2": {
+        icon: "fab fa-windows",
+        color: "windows",
+        category: ["windows", "latest", "popular"],
+        type: "Desktop",
+        size: "5.4 GB",
+        release: "2024",
+        description: "Latest Windows 11 with AI features and improved UI",
+        versions: [
+          { label: "Full ISO", url: "https://archive.org/download/Win11_24H2_English_x64/Win11_24H2_English_x64.iso" }
+        ]
+      },
+      "Windows 10 22H2": {
+        icon: "fab fa-windows",
+        color: "windows",
+        category: ["windows"],
+        type: "Desktop",
+        size: "5.1 GB",
+        release: "2022",
+        description: "Windows 10 final major update",
+        versions: [
+          { label: "Full ISO", url: "https://archive.org/download/windows-10_20240609/Windows10.iso" }
+        ]
+      },
+      "Fedora 41": {
+        icon: "fab fa-fedora",
+        color: "linux",
+        category: ["linux", "latest", "server"],
+        type: "Workstation",
+        size: "2.3 GB",
+        release: "Nov 2024",
+        description: "Cutting-edge Linux with latest features",
+        versions: [
+          { label: "Workstation", url: "https://download.fedoraproject.org/pub/fedora/linux/releases/41/Workstation/x86_64/iso/Fedora-Workstation-Live-x86_64-41-1.4.iso" },
+          { label: "KDE Plasma", url: "https://download.fedoraproject.org/pub/fedora/linux/releases/41/Spins/x86_64/iso/Fedora-KDE-Live-x86_64-41-1.4.iso" },
+          { label: "Server", url: "https://download.fedoraproject.org/pub/fedora/linux/releases/41/Server/x86_64/iso/Fedora-Server-dvd-x86_64-41-1.4.iso" }
+        ]
+      },
+      "Debian 12.9": {
+        icon: "fab fa-debian",
+        color: "linux",
+        category: ["linux", "server", "lts"],
+        type: "Stable",
+        size: "4.7 GB",
+        release: "Dec 2024",
+        description: "Rock-solid stability for servers and desktops",
+        versions: [
+          { label: "Net Install", url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.9.0-amd64-netinst.iso" },
+          { label: "DVD", url: "https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/debian-12.9.0-amd64-DVD-1.iso" }
+        ]
+      },
+      "Linux Mint 22.1": {
+        icon: "fab fa-linux",
+        color: "linux",
+        category: ["linux", "popular", "latest"],
+        type: "Desktop",
+        size: "3.1 GB",
+        release: "Jan 2025",
+        description: "User-friendly Linux based on Ubuntu LTS",
+        versions: [
+          { label: "Cinnamon", url: "https://mirrors.kernel.org/linuxmint/stable/22.1/linuxmint-22.1-cinnamon-64bit.iso" },
+          { label: "MATE", url: "https://mirrors.kernel.org/linuxmint/stable/22.1/linuxmint-22.1-mate-64bit.iso" },
+          { label: "Xfce", url: "https://mirrors.kernel.org/linuxmint/stable/22.1/linuxmint-22.1-xfce-64bit.iso" }
+        ]
+      },
+      "Arch Linux": {
+        icon: "fab fa-linux",
+        color: "linux",
+        category: ["linux", "latest"],
+        type: "Rolling",
+        size: "850 MB",
+        release: "Rolling",
+        description: "Lightweight and flexible Linux for advanced users",
+        versions: [
+          { label: "Latest", url: "https://mirrors.kernel.org/archlinux/iso/latest/archlinux-x86_64.iso" }
+        ]
+      },
+      "Pop!_OS 22.04": {
+        icon: "fab fa-linux",
+        color: "linux",
+        category: ["linux", "popular"],
+        type: "Desktop",
+        size: "2.8 GB",
+        release: "2022",
+        description: "Linux for creators and developers by System76",
+        versions: [
+          { label: "NVIDIA", url: "https://iso.pop-os.org/22.04/amd64/nvidia/45/pop-os_22.04_amd64_nvidia_45.iso" },
+          { label: "Intel/AMD", url: "https://iso.pop-os.org/22.04/amd64/intel/45/pop-os_22.04_amd64_intel_45.iso" }
+        ]
+      },
+      "Zorin OS 17.2": {
+        icon: "fab fa-linux",
+        color: "linux",
+        category: ["linux"],
+        type: "Desktop",
+        size: "3.3 GB",
+        release: "2024",
+        description: "Windows-like Linux experience",
+        versions: [
+          { label: "Core", url: "https://distro.ibiblio.org/zorinos/17/Zorin-OS-17.2-Core-64-bit.iso" },
+          { label: "Lite", url: "https://distro.ibiblio.org/zorinos/17/Zorin-OS-17.2-Lite-64-bit.iso" }
+        ]
+      },
+      "CentOS Stream 9": {
+        icon: "fab fa-centos",
+        color: "linux",
+        category: ["linux", "server"],
+        type: "Server",
+        size: "10.2 GB",
+        release: "2024",
+        description: "Enterprise Linux for servers",
+        versions: [
+          { label: "DVD", url: "https://mirror.stream.centos.org/9-stream/BaseOS/x86_64/iso/CentOS-Stream-9-latest-x86_64-dvd1.iso" }
+        ]
+      },
+      "KDE neon": {
+        icon: "fab fa-linux",
+        color: "linux",
+        category: ["linux", "latest"],
+        type: "Desktop",
+        size: "3.5 GB",
+        release: "Rolling",
+        description: "Latest KDE Plasma desktop on Ubuntu base",
+        versions: [
+          { label: "User Edition", url: "https://files.kde.org/neon/images/user/current/neon-user-current.iso" }
+        ]
+      },
+      "Manjaro": {
+        icon: "fab fa-linux",
+        color: "linux",
+        category: ["linux", "popular"],
+        type: "Desktop",
+        size: "3.6 GB",
+        release: "Rolling",
+        description: "User-friendly Arch-based distribution",
+        versions: [
+          { label: "GNOME", url: "https://download.manjaro.org/gnome/24.2.1/manjaro-gnome-24.2.1-minimal-241221-linux612.iso" },
+          { label: "KDE", url: "https://download.manjaro.org/kde/24.2.1/manjaro-kde-24.2.1-minimal-241221-linux612.iso" }
+        ]
+      }
     };
 
-    const distroSelect  = document.getElementById("distro-select");
-    const variantSelect = document.getElementById("variant-select");
-    const downloadBtn   = document.getElementById("download-btn");
-    const btnText = downloadBtn.querySelector('.btn-text');
-    
-    // Custom dropdown elements
-    const distroHeader = document.getElementById("distro-header");
-    const distroOptions = document.getElementById("distro-options");
-    const selectedDistro = document.getElementById("selected-distro");
-    const chevron = distroHeader.querySelector('.chevron');
-    
-    let currentDistro = '';
+    let selectedItem = null;
+    let currentView = 'grid';
+    let currentCategory = 'all';
 
-    // Custom dropdown functionality
-    distroHeader.addEventListener("click", () => {
-      const isOpen = distroOptions.classList.contains('show');
-      if (isOpen) {
-        distroOptions.classList.remove('show');
-        distroHeader.classList.remove('active');
-        chevron.classList.remove('rotated');
-      } else {
-        distroOptions.classList.add('show');
-        distroHeader.classList.add('active');
-        chevron.classList.add('rotated');
-      }
-    });
+    const fileGrid = document.getElementById('file-grid');
+    const fileList = document.getElementById('file-list');
+    const detailsPanel = document.getElementById('details-panel');
+    const detailsContent = document.getElementById('details-content');
+    const searchInput = document.getElementById('search-input');
+    const currentLocation = document.getElementById('current-location');
+    const itemCount = document.getElementById('item-count');
+    const selectedCount = document.getElementById('selected-count');
 
-    // Handle distro option selection
-    document.querySelectorAll('.distro-option').forEach(option => {
-      option.addEventListener('click', (e) => {
-        e.stopPropagation();
+    // Populate distributions
+    function renderDistributions(filter = 'all', searchTerm = '') {
+      fileGrid.innerHTML = '';
+      fileList.innerHTML = `
+        <div class="list-header">
+          <div>Name</div>
+          <div>Type</div>
+          <div>Size</div>
+          <div>Release</div>
+        </div>
+      `;
+
+      let count = 0;
+      Object.keys(distributions).forEach(name => {
+        const distro = distributions[name];
         
-        // Remove previous selection
-        document.querySelectorAll('.distro-option').forEach(opt => opt.classList.remove('selected'));
+        // Filter by category
+        if (filter !== 'all' && !distro.category.includes(filter)) return;
         
-        // Add selection to clicked option
-        option.classList.add('selected');
+        // Filter by search
+        if (searchTerm && !name.toLowerCase().includes(searchTerm.toLowerCase())) return;
         
-        const value = option.getAttribute('data-value');
-        const name = option.querySelector('.distro-name').textContent;
-        
-        selectedDistro.textContent = name;
-        currentDistro = value;
-        
-        // Close dropdown
-        distroOptions.classList.remove('show');
-        distroHeader.classList.remove('active');
-        chevron.classList.remove('rotated');
-        
-        // Update variant options
-        updateVariantOptions(value);
+        count++;
+
+        // Grid item
+        const gridItem = document.createElement('div');
+        gridItem.className = 'file-item';
+        gridItem.innerHTML = `
+          <i class="${distro.icon} file-icon ${distro.color}"></i>
+          <div class="file-name">${name}</div>
+          <div class="file-meta">${distro.size}</div>
+        `;
+        gridItem.addEventListener('click', () => selectItem(name, gridItem));
+        fileGrid.appendChild(gridItem);
+
+        // List item
+        const listItem = document.createElement('div');
+        listItem.className = 'list-item';
+        listItem.innerHTML = `
+          <div class="list-item-name">
+            <i class="${distro.icon} list-item-icon ${distro.color}"></i>
+            <span>${name}</span>
+          </div>
+          <div class="list-item-info">${distro.type}</div>
+          <div class="list-item-info">${distro.size}</div>
+          <div class="list-item-info">${distro.release}</div>
+        `;
+        listItem.addEventListener('click', () => selectItem(name, listItem));
+        fileList.appendChild(listItem);
       });
-    });
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!distroHeader.contains(e.target) && !distroOptions.contains(e.target)) {
-        distroOptions.classList.remove('show');
-        distroHeader.classList.remove('active');
-        chevron.classList.remove('rotated');
-      }
-    });
-
-    function updateVariantOptions(distroValue) {
-      const choices = isoOptions[distroValue] || [];
-      
-      // Fade out effect
-      variantSelect.style.opacity = '0.5';
-      
-      setTimeout(() => {
-        variantSelect.innerHTML = choices.length
-          ? choices.map(v => `<option value="${v.url}">${v.label}</option>`).join("")
-          : `<option disabled selected>No options available</option>`;
-        
-        variantSelect.disabled = choices.length === 0;
-        
-        if (choices.length > 0) {
-          variantSelect.selectedIndex = 0;
-          downloadBtn.disabled = false;
-        } else {
-          downloadBtn.disabled = true;
-        }
-        
-        // Fade in effect
-        variantSelect.style.opacity = '1';
-      }, 150);
+      itemCount.textContent = `${count} items`;
     }
 
-    // Add smooth transitions to select changes (fallback for regular select)
-    distroSelect.addEventListener("change", () => {
-      updateVariantOptions(distroSelect.value);
-    });
+    function selectItem(name, element) {
+      // Clear previous selection
+      document.querySelectorAll('.file-item, .list-item').forEach(item => {
+        item.classList.remove('selected');
+      });
 
-    downloadBtn.addEventListener("click", () => {
-      const url = variantSelect.value;
-      if (url) {
-        // Add loading state
-        downloadBtn.innerHTML = '<div class="spinner"></div><span>Preparing Download...</span>';
-        downloadBtn.disabled = true;
+      element.classList.add('selected');
+      selectedItem = distributions[name];
+      selectedCount.textContent = '1 selected';
+
+      // Show details
+      detailsContent.innerHTML = `
+        <div class="details-header">
+          <i class="${selectedItem.icon} details-icon ${selectedItem.color}"></i>
+          <div class="details-title">${name}</div>
+          <div class="details-subtitle">${selectedItem.type}</div>
+        </div>
+
+        <div class="details-section">
+          <div class="details-label">Description</div>
+          <div class="details-value">${selectedItem.description}</div>
+        </div>
+
+        <div class="details-section">
+          <div class="details-label">Size</div>
+          <div class="details-value">${selectedItem.size}</div>
+        </div>
+
+        <div class="details-section">
+          <div class="details-label">Release</div>
+          <div class="details-value">${selectedItem.release}</div>
+        </div>
+
+        <div class="details-section">
+          <div class="details-label">Available Versions</div>
+          <select class="version-select" id="version-selector" style="width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-primary); padding: 0.5rem; border-radius: 6px; margin-bottom: 1rem;">
+            ${selectedItem.versions.map((v, i) => 
+              `<option value="${i}">${v.label}</option>`
+            ).join('')}
+          </select>
+        </div>
+
+        <button class="download-button" id="download-btn">
+          <i class="fas fa-download"></i>
+          Download ISO
+        </button>
+      `;
+
+      // Add download handler
+      document.getElementById('download-btn').addEventListener('click', function() {
+        const versionIndex = document.getElementById('version-selector').value;
+        const url = selectedItem.versions[versionIndex].url;
         
-        // Add download animation
-        downloadBtn.classList.add('download-animation');
-        
+        this.innerHTML = '<div class="spinner"></div><span>Starting download...</span>';
+        this.disabled = true;
+
         setTimeout(() => {
           window.location.href = url;
-          
-          // Reset button after a delay
           setTimeout(() => {
-            downloadBtn.innerHTML = '<i class="fas fa-download"></i><span class="btn-text">Download ISO</span>';
-            downloadBtn.disabled = false;
-            downloadBtn.classList.remove('download-animation');
+            this.innerHTML = '<i class="fas fa-download"></i> Download ISO';
+            this.disabled = false;
           }, 2000);
         }, 500);
-      }
+      });
+    }
+
+    // View toggle
+    document.getElementById('grid-view-btn').addEventListener('click', function() {
+      currentView = 'grid';
+      fileGrid.style.display = 'grid';
+      fileList.style.display = 'none';
+      this.classList.add('active');
+      document.getElementById('list-view-btn').classList.remove('active');
     });
 
-    // Add hover effects to form elements
-    const formElements = document.querySelectorAll('.form-select');
-    formElements.forEach(element => {
-      element.addEventListener('focus', function() {
-        this.style.transform = 'translateY(-2px)';
-      });
-      
-      element.addEventListener('blur', function() {
-        this.style.transform = 'translateY(0)';
+    document.getElementById('list-view-btn').addEventListener('click', function() {
+      currentView = 'list';
+      fileGrid.style.display = 'none';
+      fileList.style.display = 'block';
+      fileList.classList.add('active');
+      this.classList.add('active');
+      document.getElementById('grid-view-btn').classList.remove('active');
+    });
+
+    // Details toggle
+    document.getElementById('details-toggle').addEventListener('click', function() {
+      detailsPanel.classList.toggle('hidden');
+      this.classList.toggle('active');
+    });
+
+    // Category selection
+    document.querySelectorAll('.sidebar-item[data-category]').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+        
+        currentCategory = this.getAttribute('data-category');
+        currentLocation.textContent = this.textContent.trim().replace(/\d+$/, '').trim();
+        
+        renderDistributions(currentCategory, searchInput.value);
       });
     });
+
+    // Search
+    searchInput.addEventListener('input', (e) => {
+      renderDistributions(currentCategory, e.target.value);
+    });
+
+    // Initial render
+    renderDistributions();
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
